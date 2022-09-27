@@ -3,6 +3,9 @@ defmodule Exercise do
   require Ecto.Query
   require Ecto.Changeset
 
+  alias Exercise.Repo
+  alias Exercise.Product
+
   plug(Tesla.Middleware.BaseUrl, "https://shopee.vn/api/v4")
   plug(Tesla.Middleware.Headers, [{"authority", "shopee.vn"}])
   plug(Tesla.Middleware.JSON)
@@ -73,30 +76,39 @@ defmodule Exercise do
   end
 
   def save_item(item) do
-    product = %Exercise.Product{platform_id: to_string(item["itemid"]), name: item["name"], price: item["price"]}
+    product = %Product{
+      platform_id: to_string(item["itemid"]),
+      name: item["name"],
+      price: item["price"]
+    }
 
-    Exercise.Repo.insert(product)
+    Repo.insert(product)
   end
 
   def save do
-    person = %Exercise.Product{platform_id: "1", name: "abc", price: 1000}
+    person = %Product{platform_id: "1", name: "abc", price: 1000}
 
-    Exercise.Repo.insert(person)
+    Repo.insert(person)
   end
 
   def get_product do
     # Exercise.Product |> Ecto.Query.first |> Exercise.Repo.one
     # Exercise.Product |> Exercise.Repo.get_by(id: 29) # -> element
     # Exercise.Product |> Ecto.Query.where(id: 29) |> Exercise.Repo.all # -> list
-    Ecto.Query.from(p in Exercise.Product, where: p.id == 29) |> Exercise.Repo.all
-
-
+    Ecto.Query.from(p in Product, where: p.id == 29) |> Repo.all()
   end
 
   def update_product do
-    product = Exercise.Product |> Exercise.Repo.get_by(id: 29)
-    change = Exercise.Product.changeset(product, %{name: "Apple AirPods with Charging Case 2nd gen"})
-    Exercise.Repo.update(change)
-
+    product = Product |> Repo.get_by(id: 29)
+    change = Product.changeset(product, %{name: "Apple AirPods with Charging Case 2nd"})
+    Repo.update(change)
   end
+
+  def delete_product do
+    product = Repo.get(Product, 55)
+    Repo.delete(product)
+  end
+
+  def get_all_product, do: Product |> Repo.all
+
 end
